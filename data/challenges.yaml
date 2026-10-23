@@ -70,3 +70,11 @@ challenges:
     min_points: 150
     decay_solves: 5
     flag_sha256: "4e06d527ecaeb2b5703b4815b463ae64e6c664fd5cf0badb3919ad9178b91ff5"
+
+  - slug: social-engineering-101
+    title: Social Engineering 101
+    category: misc
+    points: 500
+    min_points: 100
+    decay_solves: 1
+    flag_sha256: "d43aad687d1a1650ecbd9994e5d75c69e65276984922fb9cd25dd0690d1a2693"
