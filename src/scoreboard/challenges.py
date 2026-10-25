@@ -111,6 +111,4 @@ def parse(document: str) -> list[ChallengeDef]:
 
 def load(path: str | Path) -> list[ChallengeDef]:
     p = Path(path)
-    if not p.is_file():
-        raise ChallengeFileError(f"challenge file not found: {p}")
     return parse(p.read_text(encoding="utf-8"))
