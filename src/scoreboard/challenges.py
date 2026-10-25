@@ -102,7 +102,7 @@ def parse(document: str) -> list[ChallengeDef]:
                 category=str(raw.get("category", "misc")),
                 base_points=base,
                 min_points=int(raw.get("min_points", min(50, base))),
-                decay_solves=int(raw.get("decay_solves", 10)),
+                decay_solves=int(raw.get("decay_solves", 100)),
                 flag_hash=digest,
             )
         )
