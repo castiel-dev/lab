@@ -75,3 +75,55 @@ Repairs:
 (b) Command: `.venv/bin/pip show urllib3`
 
 The `Required-by: requests` line shows that `requests` needs `urllib3`, so it is a transitive dependency. Running `git show main:requirements.txt | grep -i urllib3` prints nothing, which confirms it is not a direct dependency.
+
+---
+
+# Screenshots of the commands run locally
+
+Every screenshot below shows the command and its output. They are in the order the commands were run.
+
+### 1. Branch and commit order
+
+The diagnosis commit comes before the three fix commits.
+
+![Branch and commit order](screenshots/01-branch-and-commit-order.png)
+
+### 2. Red pipeline log
+
+This is the failed log of run `40192166598`, covering the two test failures, the secret scan and the dependency audit.
+
+![Red pipeline log](screenshots/02-red-pipeline-full-log.png)
+
+### 3. Secret scan rule and location
+
+This reproduces the gitleaks finding on the seeded commit. The secret itself is redacted.
+
+![Gitleaks rule and location](screenshots/03-gitleaks-rule-and-location.png)
+
+### 4. Tests and lint after the fixes
+
+`make test` reports 73 passed. `make lint` prints nothing and exits with status 0.
+
+![Tests and lint after fixes](screenshots/04-local-tests-and-lint.png)
+
+### 5. Secret scan and dependency audit after the fixes
+
+`gitleaks` reports no leaks and `pip-audit` reports no known vulnerabilities.
+
+![Secret scan and dependency audit](screenshots/05-local-secret-scan-and-audit.png)
+
+### 6. Direct or transitive dependency
+
+`urllib3` is required by `requests` and is not listed in `requirements.txt` on `main`, so it is transitive.
+
+![Direct or transitive dependency](screenshots/06-direct-or-transitive.png)
+
+### 7. Remaining final checks
+
+These are the remaining screenshots of the final checks, in the order they were taken.
+
+![Final check 1](screenshots/07-final-pipeline-1.png)
+
+![Final check 2](screenshots/08-final-pipeline-2.png)
+
+![Final check 3](screenshots/09-final-pipeline-3.png)
