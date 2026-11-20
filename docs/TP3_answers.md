@@ -14,12 +14,12 @@ Team Members:
 
 (b) Two things in the build stage but not in the runtime image:
 
-- The build-only project files: `requirements.txt`, `pyproject.toml`, `README.md` and `src/`.
-- The temporary files from `pip install` (downloaded wheels and build directories).
+- The build input files: `requirements.txt`, `pyproject.toml` and `README.md`.
+- The source tree copied to `/app/src/` for installation.
 
-The runtime stage starts again from `python:3.12-slim` and copies only `/opt/venv` and `data/`.
+The runtime stage starts again from `python:3.12-slim` and copies only `/opt/venv` and `data/`. The installed application remains in the virtualenv; the original source tree and build inputs do not.
 
-(c) Without the project files, a process that can read the container filesystem cannot see the repository, the tests, or a local `.env` or database. Without the pip build leftovers, the image carries no unused downloads or build artifacts that an attacker could reuse. `.dockerignore` also keeps `.git`, `.env`, `docs/`, `tests/` and `data/*.db` out of the build.
+(c) Keeping build inputs and the separate source tree out of the runtime image reduces exposed development/build material and avoids shipping files the application does not need at runtime. It does not hide the application code: the installed package is still in `/opt/venv`. `.dockerignore` also keeps `.git`, `.env`, `docs/`, `tests/` and `data/*.db` out of the build context.
 
 (d) To keep the slow dependency layer cached. The second build changed one line in `src/scoreboard/app.py`; `COPY requirements.txt` and `pip install -r requirements.txt` stayed `CACHED`, and only `COPY src/` and `pip install --no-deps .` ran again. If `src/` were copied first, the same one-line change would invalidate the dependency layer and repeat the long install.
 
@@ -73,21 +73,8 @@ The runtime stage starts again from `python:3.12-slim` and copies only `/opt/ven
 4. `Settings.from_env` reads `BUILD_SHA` from the environment.
 5. `GET /version` returns it as `commit`.
 
-The image tag is the same hash: `ghcr.io/castiel-dev/lab:<full-commit-sha>`. A local build without the argument keeps the default `dev`.
+The image tag is the same hash: `docker pull ghcr.io/castiel-dev/lab:a6e722f136587e60c2a348f17b35f52a87df3612`.
 
 (b) Both builds would share the name `latest`, but the tag can point to only one of them, and which one a node runs depends on when it last pulled. One node can keep the old image while another pulls the new one, so a canary cannot tell the versions apart and a rollback cannot ask for the previous `latest` because the name was overwritten. The commit SHA or image digest names one immutable build.
 
 ---
-
-# What to hand in
-
-Submit the link to the final commit on `main`:
-
-`https://github.com/castiel-dev/lab/tree/<full-commit-sha>`
-
-On that commit:
-
-- `Dockerfile` and `.dockerignore` are on `main`.
-- `docs/TP3_answers.md` contains the answers to Exercises 1–5.
-- The `image` job is green for that commit.
-- `ghcr.io/castiel-dev/lab:<full-commit-sha>` is public and its `/version` returns the same hash.
